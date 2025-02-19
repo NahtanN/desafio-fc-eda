@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/go-sql-driver/mysql"
@@ -80,5 +81,6 @@ func main() {
 	webserver.AddHandler("/accounts", accountHandler.CreateAccount)
 	webserver.AddHandler("/transactions", transactionHandler.CreateTransaction)
 
+	fmt.Println("Server started on port 8080")
 	webserver.Start()
 }

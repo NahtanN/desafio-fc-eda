@@ -1,6 +1,6 @@
 services:
   goapp:
-    build: ./walletcore/
+    build: ./walletcore
     platform: linux/amd64
     volumes:
       - .:/app
