@@ -1,0 +1,37 @@
+
+# Clientes e contas foram criados via SEED
+
+# ### Create Client
+# POST http://localhost:8080/clients HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "name": "Foo Bar",
+#     "email": "foo@bar.com"
+# }
+
+# ### Create Account
+# POST http://localhost:8080/accounts HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "client_id": "d77d5d9b-6959-4637-8aaf-4c677e2fa83e"
+# }
+
+# Deixei o ID hardcoded para facilitar a execução do teste, mas caso queria, basta descomentar as linhas acima e criar um novo cliente e conta.
+
+### Create transaction
+POST http://localhost:8080/transactions HTTP/1.1
+Content-Type: application/json
+
+{
+    "account_id_from": "1fe35ef4-bbc7-4a23-80c4-48c966dbbc5f",
+    "account_id_to": "4be4234a-156a-4679-8a8a-35d8f1293502",
+    "amount": 150
+}
+
+### Get account balance
+GET http://localhost:3003/balance/1fe35ef4-bbc7-4a23-80c4-48c966dbbc5f HTTP/1.1
+
+###
+GET http://localhost:3003/balance/4be4234a-156a-4679-8a8a-35d8f1293502 HTTP/1.1
