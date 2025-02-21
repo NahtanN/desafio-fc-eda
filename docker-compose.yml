@@ -1,5 +1,5 @@
 services:
-  goapp:
+  walletcore-app:
     build: ./walletcore
     platform: linux/amd64
     volumes:
@@ -7,11 +7,12 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      goapp-db:
+      walletcore-db:
         condition: service_healthy
-  goapp-db:
+
+  walletcore-db:
     image: mysql:5.7
-    container_name: mysql
+    container_name: walletcore-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet
@@ -19,6 +20,33 @@ services:
       MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  balance-service-app:
+    build: ./balance-service
+    platform: linux/amd64
+    volumes:
+      - .:/app
+    ports:
+      - 3003:3003
+    depends_on:
+      balance-service-db:
+        condition: service_healthy
+
+  balance-service-db:
+    image: mysql:5.7
+    container_name: balance-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: balance
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3307"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s

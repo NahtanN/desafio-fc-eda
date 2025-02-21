@@ -23,8 +23,7 @@ import (
 )
 
 func main() {
-	// Mysql connection on localhost
-	db, err := sql.Open("mysql", "root:root@tcp(mysql:3306)/wallet?parseTime=true")
+	db, err := sql.Open("mysql", "root:root@tcp(walletcore-db:3306)/wallet?parseTime=true")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -37,6 +36,8 @@ func main() {
 		"bootstrap.servers": "kafka:29092",
 		"group.id":          "wallet",
 	}
+	go createKafkaTopics(&configMap)
+
 	kafkaProducer := kafka.NewKafkaProducer(&configMap)
 
 	eventDispatcher := events.NewEventDispatcher()
@@ -139,4 +140,40 @@ func seed(db *sql.DB) {
 	)
 
 	fmt.Println("Seeds executed successfully")
+}
+
+func createKafkaTopics(configMap *ckafka.ConfigMap) {
+	admin, err := ckafka.NewAdminClient(configMap)
+	if err != nil {
+		panic(err)
+	}
+	defer admin.Close()
+
+	topics := []ckafka.TopicSpecification{
+		{
+			Topic:             "transactions",
+			NumPartitions:     1,
+			ReplicationFactor: 1,
+		},
+		{
+			Topic:             "balances",
+			NumPartitions:     1,
+			ReplicationFactor: 1,
+		},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	results, err := admin.CreateTopics(ctx, topics)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, result := range results {
+		if result.Error.Code() != ckafka.ErrNoError &&
+			result.Error.Code() != ckafka.ErrTopicAlreadyExists {
+			panic(result.Error)
+		}
+	}
 }
